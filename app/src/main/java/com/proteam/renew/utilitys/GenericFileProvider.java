@@ -1,0 +1,6 @@
+package com.proteam.renew.utilitys;
+
+import androidx.core.content.FileProvider;
+
+public class GenericFileProvider extends FileProvider {
+}

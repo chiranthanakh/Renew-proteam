@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="380dp"
+    android:orientation="vertical"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:layout_width="@dimen/dp_130"
+        android:layout_height="130dp"
+        android:layout_marginTop="@dimen/dp_10"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_success"/>
+
+    <TextView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/success_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="@dimen/dp_20"
+        android:text="Worker OnBoarded successfully"
+        android:textSize="20dp"
+        android:padding="16dp"/>
+
+    <TextView
+        android:id="@+id/iv_submit"
+        android:layout_width="100dp"
+        android:layout_height="30dp"
+        android:layout_toRightOf="@+id/tv_previous_two"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="15dp"
+        android:background="@drawable/btn_bg"
+        android:fontFamily="@font/openssans"
+        android:gravity="center"
+        android:text="OK"
+        android:textAllCaps="false"
+        android:textColor="#fff"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+</LinearLayout>

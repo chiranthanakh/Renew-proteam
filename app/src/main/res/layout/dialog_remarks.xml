@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:layout_height="@dimen/dp_150">
+
+    <EditText
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/editTextRemarks"
+        android:layout_width="300dp"
+        android:layout_height="120dp"
+        android:hint="Enter your remarks/comments"
+        android:maxLines="5"
+        android:textSize="16sp"
+        android:padding="16dp"/>
+
+</LinearLayout>
