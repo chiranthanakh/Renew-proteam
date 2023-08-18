@@ -7,8 +7,10 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
 import android.text.InputType
 import android.text.TextUtils
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
@@ -27,6 +29,7 @@ import com.proteam.renew.R
 import com.proteam.renew.requestModels.RejectRequest
 import com.proteam.renew.responseModel.ContractorListResponsce
 import com.proteam.renew.responseModel.ContractorListResponsceItem
+import com.proteam.renew.responseModel.Generalresponsce
 import com.proteam.renew.responseModel.SupervisorListResponsce
 import com.proteam.renew.responseModel.ViewProjectMaster
 import com.proteam.renew.responseModel.ViewSkillsetMaster
@@ -118,6 +121,7 @@ class WorkerInformationNext1Activity : AppCompatActivity(),OnResponseListener<An
     var userid: String? = ""
     var rollid: String? = ""
      var medicalmonth : String? = ""
+    var aadharvalidation: Boolean? = false
 
     var type: Boolean? = false
     var approval: Boolean? = false
@@ -261,6 +265,9 @@ class WorkerInformationNext1Activity : AppCompatActivity(),OnResponseListener<An
             }
 
             edt_aadhaar_card.setText( sharedPreferences2.getString("aadhaar_card", ""))!!
+            if(edt_aadhaar_card.text.toString() != ""){
+                aadharvalidation = true
+            }
             if( sharedPreferences2.getString("medical_test_status", "") == "0"){
                 sp_medical_test_status.setText("Yes")
                 con_medical_date.visibility = View.VISIBLE
@@ -375,6 +382,24 @@ class WorkerInformationNext1Activity : AppCompatActivity(),OnResponseListener<An
             }
         }
         setspinneradaptors()
+
+        edt_aadhaar_card.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                Log.d("aadharValidate2",s.toString())
+
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                Log.d("aadharValidate",count.toString())
+                if(s?.length == 12){
+                  callaadharvalidation()
+                }
+            }
+        })
     }
 
     private fun setEditable() {
@@ -514,6 +539,7 @@ class WorkerInformationNext1Activity : AppCompatActivity(),OnResponseListener<An
                                                         if(approval == false || rollid == "1" || /*sp_induction_status.text.toString() != "No"*/ sp_induction_status.text.toString() == "Yes" && !TextUtils.isEmpty(induction_date.text) && induction_date.text.toString() != "00-00-0000" && induction_date.text.toString() != "0000-00-00" ) {
                                                             if (!ti_state.isVisible || !TextUtils.isEmpty(sp_status.text) && ti_state.isVisible) {
                                                                 if(!ti_report_ok.isVisible || !TextUtils.isEmpty(sp_report_is_ok1) && sp_report_is_ok1 == "Yes" ){
+                                                                    if(aadharvalidation == true){
                                                                 editor.putString(
                                                                 Project,
                                                                 projectMap.get(sp_project1)
@@ -621,6 +647,11 @@ class WorkerInformationNext1Activity : AppCompatActivity(),OnResponseListener<An
                                                                 WorkerInformationNext2Activity::class.java
                                                             )
                                                             startActivity(intent)
+
+                                                                } else {
+                                                                    Toast.makeText(this, "Aadhar card already present in database", Toast.LENGTH_SHORT)
+                                                                            .show()
+                                                                }
                                                             } else {
                                                                 Toast.makeText(this, "Please select Report is ok or not", Toast.LENGTH_SHORT)
                                                                     .show()
@@ -635,7 +666,7 @@ class WorkerInformationNext1Activity : AppCompatActivity(),OnResponseListener<An
                                                                 Toast.makeText(this, "Please select status", Toast.LENGTH_SHORT)
                                                                     .show()
                                                             }*/
-                                                            if(!TextUtils.isEmpty(sp_induction_status.text) && sp_induction_status.text.toString() == "No"){
+                                                            if(!TextUtils.isEmpty(sp_induction_status.text) || sp_induction_status.text.toString() == "No"){
                                                                 //sp_induction_status.error = "select induction status"
                                                                 Toast.makeText(this, "Please Complete Induction", Toast.LENGTH_SHORT)
                                                                     .show()
@@ -734,6 +765,17 @@ class WorkerInformationNext1Activity : AppCompatActivity(),OnResponseListener<An
         }
     }
 
+    private fun callaadharvalidation() {
+        var aadharvalid = edt_aadhaar_card.text.toString()
+        if(aadharvalid != "" && aadharvalid.length == 12){
+            val webServices = WebServices<Any>(this@WorkerInformationNext1Activity)
+            webServices.aadharvalidate(WebServices.ApiType.aadharvalidate,aadharvalid)
+        }else{
+            Toast.makeText(this, "Invalid aadhar card", Toast.LENGTH_SHORT)
+                    .show()
+        }
+    }
+
     private fun callmasterAps() {
         GlobalScope.launch(Dispatchers.IO) {
             val webServices = WebServices<Any>(this@WorkerInformationNext1Activity)
@@ -806,9 +848,11 @@ class WorkerInformationNext1Activity : AppCompatActivity(),OnResponseListener<An
                     val viewSkillsetMaster = response as ViewSkillsetMaster
                     if (viewSkillsetMaster?.isEmpty() == false) {
                         for (x in viewSkillsetMaster) {
-                            skillsList.add(x.skill_set_name)
-                            skillsetMap.put(x.skill_set_name,x.skill_set_id)
-                            skillsetreverse.put(x.skill_set_id,x.skill_set_name)
+                            if(x.skill_set_name != "Worker"){
+                                skillsList.add(x.skill_set_name)
+                                skillsetMap.put(x.skill_set_name,x.skill_set_id)
+                                skillsetreverse.put(x.skill_set_id,x.skill_set_name)
+                            }
                         }
                         sp_skill_set.setText(skillsetreverse.get(skillid))
                         if(skillsetreverse.get(skillid)?.lowercase() != "driver"){
@@ -853,6 +897,26 @@ class WorkerInformationNext1Activity : AppCompatActivity(),OnResponseListener<An
                     Toast.makeText(this, "Check your internet connection", Toast.LENGTH_SHORT)
                         .show()
                 }
+            }
+            WebServices.ApiType.aadharvalidate ->{
+                if (progressDialog != null) {
+                    if (progressDialog!!.isShowing) {
+                        progressDialog!!.dismiss()
+                    }
+                }
+                if (isSucces) {
+                        var attendanceres = response as Generalresponsce
+                        if (attendanceres.status == 200 ) {
+                            if(attendanceres.code == "success"){
+                                aadharvalidation = true
+                            } else {
+                                aadharvalidation = false
+                            }
+                        }
+                    } else {
+                        Toast.makeText(this, "Something Went wrong, aadhar not validated", Toast.LENGTH_SHORT)
+                                .show()
+                    }
             }
             WebServices.ApiType.contractors -> {
                 if (progressDialog != null) {

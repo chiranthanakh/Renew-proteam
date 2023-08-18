@@ -412,7 +412,6 @@ class TrainingAllocationListActivity : AppCompatActivity(), OnResponseListener<A
                         position.project_id,
                         position.training_master_id,position.date_allocation,s)
 
-
                 val webServices2 = WebServices<Any>(this@TrainingAllocationListActivity)
                 webServices2.Trainingcompletion(WebServices.ApiType.complete, alloc)
             } else {

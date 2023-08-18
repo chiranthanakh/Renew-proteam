@@ -63,7 +63,7 @@ public class WebServices<T> {
 
     public enum ApiType {
        login,states,location,workers,training,skills,projects,activitys,onBoarding,trainingAllocate,
-        contractors,supervisors,update,fileupdate,empReopen, trainingworkers,
+        contractors,supervisors,update,fileupdate,empReopen, trainingworkers,aadharvalidate,attendanceCount,
         complete,viewworker,approve,reject,attendence, attendancelist,empdetails,attendanceapprove, traininglist, attendancefilter
     }
     String BaseUrl = "https://gp.proteam.co.in/api/Workeronboard_api/";
@@ -374,7 +374,6 @@ public class WebServices<T> {
         renewNetwork proRenew=retrofit.create(renewNetwork.class);
 
         call=(Call<T>)proRenew.supervisor(user_id);
-
         call.enqueue(new Callback<T>() {
             @Override
             public void onResponse(Call<T> call, Response<T> response) {
@@ -419,6 +418,27 @@ public class WebServices<T> {
         Retrofit retrofit=getRetrofitClient(BaseUrl);
         renewNetwork proRenew=retrofit.create(renewNetwork.class);
         call=(Call<T>)proRenew.update(onBording, id);
+        call.enqueue(new Callback<T>() {
+            @Override
+            public void onResponse(Call<T> call, Response<T> response) {
+                System.out.println("stateslist===="+response.body());
+                t=(T)response.body();
+                onResponseListner.onResponse(t, apiTypeVariable, true,response.code());
+            }
+
+            @Override
+            public void onFailure(Call<T> call, Throwable t) {
+                onResponseListner.onResponse(null, apiTypeVariable, false,0);
+            }
+        });
+    }
+
+    public void aadharvalidate(ApiType apiTypes, String a_number)
+    {
+        apiTypeVariable = apiTypes;
+        Retrofit retrofit=getRetrofitClient(BaseUrl);
+        renewNetwork proRenew=retrofit.create(renewNetwork.class);
+        call=(Call<T>)proRenew.aadharval(a_number);
         call.enqueue(new Callback<T>() {
             @Override
             public void onResponse(Call<T> call, Response<T> response) {
@@ -683,13 +703,12 @@ public class WebServices<T> {
             }
         });
     }
-    public void empdetails(ApiType apiTypes, String id)
+    public void empdetails(ApiType apiTypes, String id, String user_id, String project_id)
     {
         apiTypeVariable = apiTypes;
         Retrofit retrofit=getRetrofitClient(BaseUrl);
         renewNetwork proRenew=retrofit.create(renewNetwork.class);
-        call=(Call<T>)proRenew.empdetails(id);
-
+        call=(Call<T>)proRenew.empdetails(id, user_id, project_id);
         call.enqueue(new Callback<T>() {
             @Override
             public void onResponse(Call<T> call, Response<T> response) {
@@ -704,6 +723,28 @@ public class WebServices<T> {
             }
         });
     }
+
+    public void attendanceCount(ApiType apiTypes, String a_id, String user_id, String project_id)
+    {
+        apiTypeVariable = apiTypes;
+        Retrofit retrofit=getRetrofitClient(BaseUrl);
+        renewNetwork proRenew=retrofit.create(renewNetwork.class);
+        call=(Call<T>)proRenew.attendancecount(a_id,project_id,user_id);
+        call.enqueue(new Callback<T>() {
+            @Override
+            public void onResponse(Call<T> call, Response<T> response) {
+                System.out.println("stateslist===="+response.body());
+                t=(T)response.body();
+                onResponseListner.onResponse(t, apiTypeVariable, true,response.code());
+            }
+
+            @Override
+            public void onFailure(Call<T> call, Throwable t) {
+                onResponseListner.onResponse(null, apiTypeVariable, false,0);
+            }
+        });
+    }
+
 
     public void AttendanceApprove(ApiType apiTypes, AttendancApproveRequest request)
     {

@@ -54,5 +54,4 @@ data class EmployeedetailResponsce(
     val work_employee_designation: String,
     val worker_id: String,
     val messages: List<String>,
-
 )

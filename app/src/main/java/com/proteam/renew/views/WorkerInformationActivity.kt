@@ -794,7 +794,7 @@ class WorkerInformationActivity : AppCompatActivity(), OnResponseListener<Any>, 
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 103)
             ActivityCompat.requestPermissions(this, arrayOf<String>(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA), 103)
 
-            openCamera()
+            //openCamera()
             //openAppSettings()
             Toast.makeText(this, "Please Enabled All Permission", Toast.LENGTH_SHORT).show()
 

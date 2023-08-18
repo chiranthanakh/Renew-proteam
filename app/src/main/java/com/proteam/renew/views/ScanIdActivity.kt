@@ -2,6 +2,7 @@ package com.proteam.renew.views
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.app.ProgressDialog
@@ -19,6 +20,7 @@ import android.provider.MediaStore
 import android.text.InputType
 import android.text.TextUtils
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
@@ -37,6 +39,7 @@ import com.google.zxing.integration.android.IntentIntegrator
 import com.google.zxing.integration.android.IntentResult
 import com.proteam.renew.R
 import com.proteam.renew.requestModels.AttendanceRequest
+import com.proteam.renew.responseModel.AttendanceCount1Responsce
 import com.proteam.renew.responseModel.AttendanceCountResponsce
 import com.proteam.renew.responseModel.EmployeedetailResponsce
 import com.proteam.renew.responseModel.ViewActivityMasterResponsce
@@ -122,11 +125,7 @@ class ScanIdActivity : AppCompatActivity(), OnResponseListener<Any> {
 
     private fun initilize() {
         img_work_permit.setOnClickListener {
-          //      val intent = Intent(Intent.ACTION_GET_CONTENT)
-           //     intent.type = "*/*"
-            //    startActivityForResult(intent, 101)
-                //openCamera()
-            checkCameraPermission()
+            showImagePickerDialog()
         }
 
         tv_att_list.setOnClickListener {
@@ -146,65 +145,53 @@ class ScanIdActivity : AppCompatActivity(), OnResponseListener<Any> {
                 if(!TextUtils.isEmpty(sp_activity.text)){
                     if(!TextUtils.isEmpty(edt_total_worker.text.toString())) {
                         if (workPermit != "") {
-                            val sharedPreferences2: SharedPreferences =
-                                getSharedPreferences("countofattendance", Context.MODE_PRIVATE)!!
-                            var count = sharedPreferences2.getInt("totalcount", 0)!!
-                            val pro = sharedPreferences2.getString("project", "")!!
-                            val date = sharedPreferences2.getString("date", "")!!
-                            var newpro: Boolean = false
 
-                            Log.d(
-                                "testScanning",
-                                sp_project1.text.toString() + "---" + count + "---" + pro
-                            )
+                            callTotalcount()
+                            //scanQRCode()
 
-                            if (pro != sp_project1.text.toString() || pro == sp_project1.text.toString() && count < edt_total_worker.text.toString()
-                                    .toInt()
-                            ) {
-                                scanQRCode()
-                            } else {
-                                Toast.makeText(
-                                    this,
-                                    "Total worker count exceeded",
-                                    Toast.LENGTH_SHORT
-                                )
-                                    .show()
-                            }
+                            /* val sharedPreferences2: SharedPreferences =
+                                 getSharedPreferences("countofattendance", Context.MODE_PRIVATE)!!
+                             var count = sharedPreferences2.getInt("totalcount", 0)!!
+                             val pro = sharedPreferences2.getString("project", "")!!
+                             val date = sharedPreferences2.getString("date", "")!!
+                             var newpro: Boolean = false
+
+                             Log.d(
+                                 "testScanning",
+                                 sp_project1.text.toString() + "---" + count + "---" + pro
+                             )
+
+                             if (pro != sp_project1.text.toString() || pro == sp_project1.text.toString() && count < edt_total_worker.text.toString()
+                                     .toInt()
+                             ) {
+                                 scanQRCode()
+                             } else {
+                                 Toast.makeText(
+                                     this,
+                                     "Total worker count exceeded",
+                                     Toast.LENGTH_SHORT
+                                 )
+                                     .show()
+                             }*/
                         } else {
-                            Toast.makeText(this, "please select work permit", Toast.LENGTH_SHORT)
+                            Toast.makeText(this, "Please select work permit", Toast.LENGTH_SHORT)
                                 .show()
                         }
                     }else{
-                        Toast.makeText(this, "please enter total count", Toast.LENGTH_SHORT)
+                        Toast.makeText(this, "Please enter total count", Toast.LENGTH_SHORT)
                             .show()
                     }
 
                 }else{
-                    Toast.makeText(this, "please select Activity", Toast.LENGTH_SHORT)
+                    Toast.makeText(this, "Please select Activity", Toast.LENGTH_SHORT)
                         .show()
                 }
 
             }else{
-                Toast.makeText(this, "please select Project", Toast.LENGTH_SHORT)
+                Toast.makeText(this, "Please select Project", Toast.LENGTH_SHORT)
                     .show()
             }
         }
-/*        etChooseTime_from?.setOnClickListener(View.OnClickListener {
-            calendar = Calendar.getInstance()
-            currentHour = calendar?.get(Calendar.HOUR_OF_DAY)!!
-            currentMinute = calendar?.get(Calendar.MINUTE)!!
-            timePickerDialogfrom =
-                TimePickerDialog(this@ScanIdActivity, { timePicker, hourOfDay, minutes ->
-                    amPm = if (hourOfDay >= 12) {
-                        "PM"
-                    } else {
-                        "AM"
-                    }
-                    etChooseTime_from?.setText(String.format("%02d:%02d", hourOfDay, minutes) + amPm)
-                }, currentHour, currentMinute, false)
-            timePickerDialogfrom!!.show()
-        })*/
-
 
         etChooseTime_from!!.setOnClickListener {
             val timePickerBuilder: MaterialTimePicker.Builder = MaterialTimePicker
@@ -225,21 +212,7 @@ class ScanIdActivity : AppCompatActivity(), OnResponseListener<Any> {
                 )
             }
         }
-   /*     etChooseTime_to?.setOnClickListener(View.OnClickListener {
-            calendar = Calendar.getInstance()
-            currentHour = calendar?.get(Calendar.HOUR_OF_DAY)!!
-            currentMinute = calendar?.get(Calendar.MINUTE)!!
-            timePickerDialogto =
-                TimePickerDialog(this@ScanIdActivity, { timePicker, hourOfDay, minutes ->
-                    amPm = if (hourOfDay >= 12) {
-                        "PM"
-                    } else {
-                        "AM"
-                    }
-                    etChooseTime_to?.setText(String.format("%02d:%02d", hourOfDay, minutes) + amPm)
-                }, currentHour, currentMinute, false)
-            timePickerDialogto!!.show()
-        }) */
+
 
         etChooseTime_to!!.setOnClickListener {
             val timePickerBuilder: MaterialTimePicker.Builder = MaterialTimePicker
@@ -253,7 +226,7 @@ class ScanIdActivity : AppCompatActivity(), OnResponseListener<Any> {
 
             timePicker.addOnPositiveButtonClickListener {
                 etChooseTime_to!!.setText(
-                    timeConverter(
+                    timeConverter (
                         hour = timePicker.hour,
                         minute = timePicker.minute
                     )
@@ -298,7 +271,7 @@ class ScanIdActivity : AppCompatActivity(), OnResponseListener<Any> {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == 101 && resultCode == Activity.RESULT_OK) {
+        if (requestCode == 104 && resultCode == Activity.RESULT_OK) {
             data?.data?.let { uri ->
                 val imageUri: Uri = uri
                 val inputStream = contentResolver.openInputStream(imageUri)
@@ -330,19 +303,6 @@ class ScanIdActivity : AppCompatActivity(), OnResponseListener<Any> {
     }
 
     private fun validation(details : EmployeedetailResponsce) {
-        /*val sharedPreferences2: SharedPreferences =
-            getSharedPreferences("countofattendance", Context.MODE_PRIVATE)!!
-        var count = sharedPreferences2.getString("totalcount", "")!!
-        val pro = sharedPreferences2.getString("project", "")!!
-        var newpro : Boolean = false
-
-        Log.d("testScanning",sp_project1.text.toString()+"---"+count+"---"+pro)
-        if(pro == sp_project1.text.toString()){
-
-        } else {
-            newpro = true
-        }*/
-       // if (edt_total_worker.text.toString() >= count || newpro == true) {
         var projectid = projectmap.get(sp_project1.text.toString())
         var activityid = activitymap.get(sp_activity.text.toString())
         if (!TextUtils.isEmpty(projectid)) {
@@ -353,32 +313,32 @@ class ScanIdActivity : AppCompatActivity(), OnResponseListener<Any> {
                             if (!TextUtils.isEmpty(projectid)) {
                                 callAttendanceApi(details, projectid, activityid)
                             } else {
-                                Toast.makeText(this, "please select project id", Toast.LENGTH_SHORT)
+                                Toast.makeText(this, "Please select project id", Toast.LENGTH_SHORT)
                                     .show()
                             }
 
                         } else {
-                            Toast.makeText(this, "please select project id", Toast.LENGTH_SHORT)
+                            Toast.makeText(this, "Please select project id", Toast.LENGTH_SHORT)
                                 .show()
                         }
 
                     } else {
-                        Toast.makeText(this, "please select To timings", Toast.LENGTH_SHORT)
+                        Toast.makeText(this, "Please select To timings", Toast.LENGTH_SHORT)
                             .show()
                     }
 
                 } else {
-                    Toast.makeText(this, "please select from Timings", Toast.LENGTH_SHORT)
+                    Toast.makeText(this, "Please select from Timings", Toast.LENGTH_SHORT)
                         .show()
                 }
 
             } else {
-                Toast.makeText(this, "please select Activity", Toast.LENGTH_SHORT)
+                Toast.makeText(this, "Please select Activity", Toast.LENGTH_SHORT)
                     .show()
             }
 
         } else {
-            Toast.makeText(this, "please select project", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Please select project", Toast.LENGTH_SHORT).show()
         }
     /*} else {
             Toast.makeText(this, "Attendance count exceeded ", Toast.LENGTH_SHORT)
@@ -408,11 +368,26 @@ class ScanIdActivity : AppCompatActivity(), OnResponseListener<Any> {
                 progressDialog?.setMessage("Please wait...")
                 progressDialog?.show()
                  val webServices = WebServices<Any>(this@ScanIdActivity)
-                 webServices.empdetails(WebServices.ApiType.empdetails, scannedData)
+                 webServices.empdetails(WebServices.ApiType.empdetails, scannedData,userid,projectmap.get(sp_project1.text.toString()))
             } else {
             }
         }
     }
+
+    private fun callTotalcount() {
+        progressDialog = ProgressDialog(this@ScanIdActivity)
+        if (progressDialog != null) {
+            if (!progressDialog!!.isShowing) {
+                progressDialog?.setCancelable(false)
+                progressDialog?.setMessage("Please wait...")
+                //progressDialog?.show()
+                val webServices = WebServices<Any>(this@ScanIdActivity)
+                webServices.attendanceCount(WebServices.ApiType.attendanceCount,activitymap.get(sp_activity.text.toString()),userid,projectmap.get(sp_project1.text.toString()))
+            } else {
+            }
+        }
+    }
+
     private fun callAttendanceApi(
         details: EmployeedetailResponsce,
         projectid: String?,
@@ -433,13 +408,14 @@ class ScanIdActivity : AppCompatActivity(), OnResponseListener<Any> {
                     details.id,
                     etChooseTime_from?.text.toString(),
                     projectid.toString(),
-                    etChooseTime_from?.text.toString(),
+                    etChooseTime_to?.text.toString(),
                     userid,
                     workPermit
                 )
                 val webServices = WebServices<Any>(this@ScanIdActivity)
                 webServices.attendance(WebServices.ApiType.attendence, attendancerequest)
             } else {
+
             }
         }
     }
@@ -483,7 +459,7 @@ class ScanIdActivity : AppCompatActivity(), OnResponseListener<Any> {
         if(details.status != "1"){
             tv_invaild.visibility = View.VISIBLE
             save.visibility = View.GONE
-        }else{
+        } else {
             tv_invaild.visibility = View.GONE
             save.visibility = View.VISIBLE
         }
@@ -497,6 +473,28 @@ class ScanIdActivity : AppCompatActivity(), OnResponseListener<Any> {
         }
         dialog.show()
     }
+
+    fun showImagePickerDialog() {
+        val builder = AlertDialog.Builder(this)
+        val inflater = LayoutInflater.from(this)
+        val dialogView: View = inflater.inflate(R.layout.option_dialog, null)
+        builder.setView(dialogView)
+
+        val alertDialog = builder.create()
+
+        dialogView.findViewById<View>(R.id.btnGallery).setOnClickListener {
+            openGallery()
+            alertDialog.dismiss()
+        }
+
+        dialogView.findViewById<View>(R.id.btnCamera).setOnClickListener {
+            checkCameraPermission()
+            alertDialog.dismiss()
+        }
+
+        alertDialog.show()
+    }
+
 
     override fun onResponse(
         response: Any?,
@@ -567,15 +565,19 @@ class ScanIdActivity : AppCompatActivity(), OnResponseListener<Any> {
                     }
                 }
                 if (isSucces) {
-                    val empdetail = response as EmployeedetailResponsce
-                    if (!empdetail.full_name.isEmpty()) {
-                        showCustomDialog(empdetail)
-                    } else {
-                        Toast.makeText(this, "", Toast.LENGTH_SHORT)
-                            .show()
+                    if(code == 400){
+
+                    }else{
+                        val empdetail = response as EmployeedetailResponsce
+                        if (empdetail.full_name != null) {
+                            showCustomDialog(empdetail)
+                        } else {
+                            Toast.makeText(this, empdetail.messages.get(0), Toast.LENGTH_SHORT)
+                                    .show()
+                        }
                     }
                 } else {
-                    Toast.makeText(this, "Invalid Worker. please scan valid Worker id ", Toast.LENGTH_SHORT)
+                    Toast.makeText(this, "Something went wrong, please try again", Toast.LENGTH_SHORT)
                         .show()
                 }
             }
@@ -589,7 +591,9 @@ class ScanIdActivity : AppCompatActivity(), OnResponseListener<Any> {
                 if (isSucces) {
                     val attendanceres = response as AttendanceCountResponsce
                     if (attendanceres.status == "200" ) {
-                        val prefs = getSharedPreferences("countofattendance", MODE_PRIVATE)
+                        callTotalcount()
+
+                        /*val prefs = getSharedPreferences("countofattendance", MODE_PRIVATE)
                         val editor = prefs.edit()
                         editor.putInt("totalcount",attendanceres.present_attendance_count)
                         editor.putString("project",sp_project1.text.toString())
@@ -607,8 +611,8 @@ class ScanIdActivity : AppCompatActivity(), OnResponseListener<Any> {
                             val intent = Intent(applicationContext, ContractorAttendanceList::class.java)
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                             applicationContext.startActivity(intent)
-                        }
-                        Toast.makeText(this, attendanceres.messages.get(0), Toast.LENGTH_SHORT)
+                        }*/
+                        Toast.makeText(this, "Attendance inserted successfully", Toast.LENGTH_SHORT)
                             .show()
                     } else if(attendanceres.status == "400") {
                         Toast.makeText(this, attendanceres.messages.get(0), Toast.LENGTH_SHORT)
@@ -619,6 +623,33 @@ class ScanIdActivity : AppCompatActivity(), OnResponseListener<Any> {
                         .show()
                 }
             }
+
+            WebServices.ApiType.attendanceCount -> {
+                if (progressDialog != null) {
+                    if (progressDialog!!.isShowing) {
+                        progressDialog!!.dismiss()
+                    }
+                }
+                if (isSucces) {
+                    val attendanceres = response as AttendanceCount1Responsce
+                    if (attendanceres.status == 200 ) {
+
+                        if(attendanceres.count < edt_total_worker.text.toString().toInt()) {
+                            scanQRCode()
+                        } else {
+                            Toast.makeText(this, "Attendance Count exceeded", Toast.LENGTH_SHORT)
+                                    .show()
+                        }
+                    } else if(attendanceres.status == 400) {
+                        Toast.makeText(this, "Something Went wrong", Toast.LENGTH_SHORT)
+                                .show()
+                    }
+                } else {
+                    Toast.makeText(this, "Something Went wrong", Toast.LENGTH_SHORT)
+                            .show()
+                }
+            }
+
 
             else -> {}
         }
@@ -631,6 +662,11 @@ class ScanIdActivity : AppCompatActivity(), OnResponseListener<Any> {
         }
     }
 
+    fun openGallery() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        startActivityForResult(intent, 104)
+    }
+
     private fun checkCameraPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
             ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
@@ -640,7 +676,7 @@ class ScanIdActivity : AppCompatActivity(), OnResponseListener<Any> {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 103)
             ActivityCompat.requestPermissions(this, arrayOf<String>(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA), 103)
 
-            openCamera()
+            //openCamera()
             Toast.makeText(this, "Please Enabled All Permission", Toast.LENGTH_SHORT).show()
 
         } else {

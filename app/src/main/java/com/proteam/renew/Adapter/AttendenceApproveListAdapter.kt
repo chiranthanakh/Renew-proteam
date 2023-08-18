@@ -52,7 +52,9 @@ class AttendenceApproveListAdapter(
         }
 
         if(attendanceItem.as_status == "1"){
+            holder.ch_approve.setChecked(true)
             holder.iv_action_Attendance_approve.setBackgroundResource(R.drawable.ic_status2)
+            holder.ch_approve.isEnabled = false
         } else {
             holder.iv_action_Attendance_approve.setBackgroundResource(R.drawable.ic_status)
         }

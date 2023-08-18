@@ -12,6 +12,7 @@ import com.proteam.renew.requestModels.OnBoarding;
 import com.proteam.renew.requestModels.TrainingAllocationRequest;
 import com.proteam.renew.requestModels.TrainingListResponsce;
 import com.proteam.renew.requestModels.TrainingWorkersrequest;
+import com.proteam.renew.responseModel.AttendanceCount1Responsce;
 import com.proteam.renew.responseModel.AttendanceCountResponsce;
 import com.proteam.renew.responseModel.Attendance_new_list;
 import com.proteam.renew.responseModel.ContractorListResponsce;
@@ -95,13 +96,16 @@ public interface renewNetwork {
     @POST("attendance_insert")
     Call<AttendanceCountResponsce> attendencepass(@Body AttendanceRequest attendanceRequest);
 
+    @GET("attendance_count")
+    Call<AttendanceCount1Responsce> attendancecount(@Query("activity_id")  String id, @Query("project_id") String user_id, @Query("user_id") String project_id);
+
     @GET("list_attendance/")
     Call<Attendance_new_list> attendance_list(@Query("user_id") String user_id);
 
     @GET("contractor_wise_attendance_list/")
     Call<Attendance_new_list> contractor_attendance_list(@Query("user_id") String user_id);
     @GET("employeeDetails")
-    Call<EmployeedetailResponsce> empdetails(@Query("employee") String user_id);
+    Call<EmployeedetailResponsce> empdetails(@Query("employee")  String id, @Query("user_id") String user_id, @Query("project_id") String project_id);
 
     @PUT("employee_resubmit/{id}")
     Call<Generalresponsce> empResubmit(@Path("id") String id);
@@ -110,6 +114,9 @@ public interface renewNetwork {
 
     @GET("training_allocation_list/")
     Call<TrainingListResponsce> training_list(@Query("user_id") String user_id);
+
+    @GET("aadhaar_validation/")
+    Call<Generalresponsce> aadharval(@Query("aadhaar_no") String a_no);
 
     @POST("allocate_training")
     Call<generalGesponce> trainingaloocate(@Body TrainingAllocationRequest tainingallocate);

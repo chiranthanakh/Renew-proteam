@@ -806,7 +806,12 @@ open class WorkerInformationNext2Activity : AppCompatActivity(), OnResponseListe
                     var gresponse = response as Generalresponsce
                     Log.d("validateadhar",gresponse.status.toString())
                     if (gresponse.status == 200) {
-                        Showsuccess(this,"")
+                        if(gresponse.code == "false"){
+                            showFailureDialog(gresponse.messages.get(0))
+
+                        }else{
+                            Showsuccess(this,"")
+                        }
                     } else if (gresponse.status == 400) {
                         showFailureDialog(gresponse.messages.get(0))
                         Toast.makeText(this, gresponse.messages.get(0), Toast.LENGTH_SHORT)
@@ -1068,33 +1073,6 @@ open class WorkerInformationNext2Activity : AppCompatActivity(), OnResponseListe
             openCamera(nav)
         }
     }
-
-    private fun dispatchTakePictureCamIntent(nav2: Int) {
-        //Create intent for the Camera
-        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        if (takePictureIntent.resolveActivity(packageManager) != null) {
-            // Create the File
-            var photoFile: File? = null
-            try {
-                photoFile = createImageFile(this.applicationContext)
-            } catch (ex: IOException) {
-                //Error occurred while creating the File
-            }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                val photoUri = FileProvider.getUriForFile(
-                    this,
-                    this.applicationContext.packageName + ".provider",
-                    photoFile
-                )
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
-                startActivityForResult(takePictureIntent, nav2)
-                 mCapturedPhotoUri = photoUri
-                //Log.d("testimagecapture", mCapturedPhotoUri.path.toString())
-            }
-        }
-    }
-
     @Throws(IOException::class)
     fun createImageFile(context: Context): File? {
         //Create Image Name

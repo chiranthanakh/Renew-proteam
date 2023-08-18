@@ -41,8 +41,11 @@ class TrainingWorkerListadaptor(private val mList: List<TraininWorkersResponsceI
         }
         holder.tv_contractor.text = trainings.username
         holder.tv_Worker.text = trainings.full_name
-        if(trainings.completion_status == "2"){
-            holder.tv_status.visibility = View.INVISIBLE
+        if(trainings.completion_status == "1"){
+            //holder.tv_status.visibility = View.VISIBLE
+            //holder.tv_status.setImageResource(R.drawable.pending_24)
+        }else{
+            holder.tv_status.setImageResource(R.drawable.pending_24)
         }
         var doj = trainings.date_of_completion
         if(doj != "") {
@@ -52,7 +55,11 @@ class TrainingWorkerListadaptor(private val mList: List<TraininWorkersResponsceI
             } else {
                 doj = dates?.get(0) + "-" + dates?.get(1) + "-" + dates?.get(2)
             }
-            holder.tv_date.text = doj
+            if(doj == "00-00-0000"){
+                holder.tv_date.text = "--"
+            }else{
+                holder.tv_date.text = doj
+            }
         } else {
             holder.tv_date.text = "--"
         }
