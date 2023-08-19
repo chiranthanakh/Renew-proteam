@@ -29,6 +29,12 @@
         android:theme="@style/Theme.Renew"
         tools:targetApi="31">
         <activity
+            android:name=".views.ObservationTrackingListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.ObservationTrackingActivity"
+            android:exported="false" />
+        <activity
             android:name=".views.ObservationActivity"
             android:exported="false" />
         <activity
