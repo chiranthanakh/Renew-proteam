@@ -121,6 +121,7 @@ class WorkerInformationNext1Activity : AppCompatActivity(),OnResponseListener<An
     var userid: String? = ""
     var rollid: String? = ""
      var medicalmonth : String? = ""
+    var aadharMsg : String? = ""
     var aadharvalidation: Boolean? = false
 
     var type: Boolean? = false
@@ -649,7 +650,7 @@ class WorkerInformationNext1Activity : AppCompatActivity(),OnResponseListener<An
                                                             startActivity(intent)
 
                                                                 } else {
-                                                                    Toast.makeText(this, "Aadhar card already present in database", Toast.LENGTH_SHORT)
+                                                                    Toast.makeText(this, aadharMsg, Toast.LENGTH_SHORT)
                                                                             .show()
                                                                 }
                                                             } else {
@@ -850,9 +851,9 @@ class WorkerInformationNext1Activity : AppCompatActivity(),OnResponseListener<An
                         for (x in viewSkillsetMaster) {
                             if(x.skill_set_name != "Worker"){
                                 skillsList.add(x.skill_set_name)
-                                skillsetMap.put(x.skill_set_name,x.skill_set_id)
-                                skillsetreverse.put(x.skill_set_id,x.skill_set_name)
                             }
+                            skillsetMap.put(x.skill_set_name,x.skill_set_id)
+                            skillsetreverse.put(x.skill_set_id,x.skill_set_name)
                         }
                         sp_skill_set.setText(skillsetreverse.get(skillid))
                         if(skillsetreverse.get(skillid)?.lowercase() != "driver"){
@@ -907,6 +908,7 @@ class WorkerInformationNext1Activity : AppCompatActivity(),OnResponseListener<An
                 if (isSucces) {
                         var attendanceres = response as Generalresponsce
                         if (attendanceres.status == 200 ) {
+                            aadharMsg = attendanceres.messages.get(0)
                             if(attendanceres.code == "success"){
                                 aadharvalidation = true
                             } else {

@@ -52,9 +52,11 @@ class AttendenceApproveActivity : AppCompatActivity(), OnResponseListener<Any>, 
     var attendancelist : Attendance_new_list ? = null
     private val calendar: Calendar = Calendar.getInstance()
     var date : EditText? = null
+    var empids : String = ""
     var contId : String = ""
     var proid : String = ""
     var dateof : String = ""
+    var pendindapproval : Boolean = false
     val projectMap = HashMap<String, String>()
     val contractorMap = HashMap<String, String>()
     val contractorreverseMap = HashMap<String, String>()
@@ -137,22 +139,42 @@ class AttendenceApproveActivity : AppCompatActivity(), OnResponseListener<Any>, 
                 progressDialog?.show()
 
                 var attendance: String = ""
+                var empid: String = ""
+
                 if (selectall) {
                     attendancelist?.forEach {
-                        attendance = attendance + "," + it.attendance_list_id
+                        if(it.as_status == "1"){
+
+                        }else{
+                            attendance = attendance + "," + it.attendance_list_id
+                            empids = empids + "," + it.employee_id
+                        }
                     }
                 } else {
                     checkbox.forEach { (key, value) ->
                         if (value) {
-                            attendance = attendance + "," + key
+                            if (attendance != "") {
+                                attendance = attendance + "," + key
+                            } else {
+                                attendance = key
+                            }
                         }
                         println("$key = $value")
                     }
                 }
-
-                var approve = AttendancApproveRequest(attendance.toString())
-                val webServices2 = WebServices<Any>(this@AttendenceApproveActivity)
-                webServices2.AttendanceApprove(WebServices.ApiType.attendanceapprove,approve)
+                if(attendance != ""){
+                    var approve = AttendancApproveRequest(attendance,empids, userid)
+                    val webServices2 = WebServices<Any>(this@AttendenceApproveActivity)
+                    webServices2.AttendanceApprove(WebServices.ApiType.attendanceapprove,approve)
+                }else{
+                    if (progressDialog != null) {
+                        if (progressDialog!!.isShowing) {
+                            progressDialog!!.dismiss()
+                        }
+                    }
+                    Toast.makeText(this, "attendance already approved", Toast.LENGTH_SHORT)
+                            .show()
+                }
             } else {
             }
         }    }
@@ -208,11 +230,23 @@ class AttendenceApproveActivity : AppCompatActivity(), OnResponseListener<Any>, 
                         for(x in attendancelist!!){
                             contractorlist.add(x.username)
                             contractorMap.put(x.username,x.contractor_id)
+                            if(x.as_status != "1"){
+                                pendindapproval = true
+                                Log.d("contractorlist12323",pendindapproval.toString())
+
+                            }
                         }
 
                         val adapter = AttendenceApproveListAdapter(attendancelist!!,this,getApplicationContext(),false)
                         rv_attendance.adapter = adapter
+
                         no_data_linear_layout.visibility = View.GONE
+                        Log.d("contractorlist12323",pendindapproval.toString())
+
+                        if(!pendindapproval){
+                            Log.d("contractorlist123",pendindapproval.toString())
+                            tv_attendance_approve.visibility = View.GONE
+                        }
                     } else {
                         no_data_linear_layout.visibility = View.VISIBLE
                         Toast.makeText(this, "No Approval list", Toast.LENGTH_SHORT)
@@ -312,6 +346,12 @@ class AttendenceApproveActivity : AppCompatActivity(), OnResponseListener<Any>, 
                         for(x in attendancelist!!){
                             contractorlist.add(x.username)
                             contractorMap.put(x.username,x.contractor_id)
+                            if(x.as_status != "1"){
+                                pendindapproval = true
+                            }
+                        }
+                        if(!pendindapproval){
+                            tv_attendance_approve.visibility = View.GONE
                         }
                         val adapter = AttendenceApproveListAdapter(attendancelist!!,this,getApplicationContext(),false)
                         rv_attendance.adapter = adapter
@@ -405,8 +445,13 @@ class AttendenceApproveActivity : AppCompatActivity(), OnResponseListener<Any>, 
         }    }
 
 
-    override fun onCheckboxChanged(id: String, isChecked: Boolean) {
+    override fun onCheckboxChanged(empid_id: String, id: String, isChecked: Boolean) {
         checkbox.put(id,isChecked)
+        if(empids != ""){
+            empids = empids+","+ empid_id
+        }else{
+            empids = empid_id
+        }
     }
 
     private fun showDatePickerDialog() {

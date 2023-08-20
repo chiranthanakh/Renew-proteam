@@ -282,14 +282,14 @@ class TrainingAllocationListActivity : AppCompatActivity(), OnResponseListener<A
                     val attendanceres = response as generalGesponce
                     if (attendanceres.status == "200" ) {
                         scanQRCode()
-                        Toast.makeText(this, "Training added Successfully", Toast.LENGTH_SHORT)
+                        Toast.makeText(this, attendanceres.messages.get(0), Toast.LENGTH_SHORT)
                             .show()
                     } else {
-                        Toast.makeText(this, "Something Went wrong.", Toast.LENGTH_SHORT)
+                        Toast.makeText(this, attendanceres.messages.get(0), Toast.LENGTH_SHORT)
                             .show()
                     }
                 } else {
-                    Toast.makeText(this, "Check your internet connection", Toast.LENGTH_SHORT)
+                    Toast.makeText(this, "Something went wrong, please try again", Toast.LENGTH_SHORT)
                         .show()
                 }
             }

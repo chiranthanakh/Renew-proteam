@@ -612,9 +612,11 @@ class ScanIdActivity : AppCompatActivity(), OnResponseListener<Any> {
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                             applicationContext.startActivity(intent)
                         }*/
-                        Toast.makeText(this, "Attendance inserted successfully", Toast.LENGTH_SHORT)
+                        Log.d("msedff",attendanceres.messages.get(0))
+                        Toast.makeText(this, attendanceres.messages.get(0), Toast.LENGTH_SHORT)
                             .show()
                     } else if(attendanceres.status == "400") {
+
                         Toast.makeText(this, attendanceres.messages.get(0), Toast.LENGTH_SHORT)
                             .show()
                     }
@@ -637,6 +639,15 @@ class ScanIdActivity : AppCompatActivity(), OnResponseListener<Any> {
                         if(attendanceres.count < edt_total_worker.text.toString().toInt()) {
                             scanQRCode()
                         } else {
+                            val sharedPref: SharedPreferences =applicationContext.getSharedPreferences("Attendenceid", Context.MODE_PRIVATE)!!
+                            val editor: SharedPreferences.Editor = sharedPref.edit()
+                            editor.putString("contractorid",userid)
+                            editor.putString("projectid","")
+                            editor.putString("date",getFormattedDate())
+                            editor.commit()
+                            val intent = Intent(applicationContext, ContractorAttendanceList::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            applicationContext.startActivity(intent)
                             Toast.makeText(this, "Attendance Count exceeded", Toast.LENGTH_SHORT)
                                     .show()
                         }
