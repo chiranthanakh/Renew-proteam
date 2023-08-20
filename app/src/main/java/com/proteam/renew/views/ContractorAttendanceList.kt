@@ -280,8 +280,9 @@ class ContractorAttendanceList : AppCompatActivity(), OnResponseListener<Any>, C
         }    }
 
 
-    override fun onCheckboxChanged(id: String, isChecked: Boolean) {
+    override fun onCheckboxChanged(empid_id: String, id: String, isChecked: Boolean) {
         checkbox.put(id,isChecked)
+       // empids = empids+","+ empid_id
     }
 
     private fun showDatePickerDialog() {

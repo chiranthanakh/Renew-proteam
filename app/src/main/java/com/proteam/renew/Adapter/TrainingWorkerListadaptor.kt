@@ -45,7 +45,7 @@ class TrainingWorkerListadaptor(private val mList: List<TraininWorkersResponsceI
             //holder.tv_status.visibility = View.VISIBLE
             //holder.tv_status.setImageResource(R.drawable.pending_24)
         }else{
-            holder.tv_status.setImageResource(R.drawable.pending_24)
+            holder.tv_status.setImageResource(R.drawable.baseline_pending_actions_24)
         }
         var doj = trainings.date_of_completion
         if(doj != "") {

@@ -78,7 +78,10 @@ class AttendenceApproveSupervisor : AppCompatActivity(), OnResponseListener<Any>
         callListapi()
         bottomnavigation()
         tv_attendance_approve.setOnClickListener {
-            callAttendanceApprove()
+            if(checkbox.isEmpty()){
+            }else{
+                callAttendanceApprove()
+            }
         }
         Log.d("testingcheck3",true.toString())
 
@@ -90,18 +93,33 @@ class AttendenceApproveSupervisor : AppCompatActivity(), OnResponseListener<Any>
                 popupMenu.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener { menuItem -> // Handle menu item clicks here
                     when (menuItem.itemId) {
                         R.id.pending -> {
+                            if(pendinglist.isEmpty()){
+                                no_data_linear_layout.visibility = View.VISIBLE
+                            }else{
+                                no_data_linear_layout.visibility = View.GONE
+                            }
                             val adapter = AttendenceApproveListAdaptersup(pendinglist!!,this,getApplicationContext(),false)
                             rv_attendance.adapter = adapter
                             return@OnMenuItemClickListener true
                         }
 
                         R.id.completed -> {
+                            if(completedlist.isEmpty()){
+                                no_data_linear_layout.visibility = View.VISIBLE
+                            }else{
+                                no_data_linear_layout.visibility = View.GONE
+                            }
                             val adapter = AttendenceApproveListAdaptersup(completedlist!!,this,getApplicationContext(),false)
                             rv_attendance.adapter = adapter
                             return@OnMenuItemClickListener true
                         }
 
                         R.id.all -> {
+                            if(attendancelist?.isEmpty() == true){
+                                no_data_linear_layout.visibility = View.VISIBLE
+                            }else{
+                                no_data_linear_layout.visibility = View.GONE
+                            }
                             val adapter = AttendenceApproveListAdaptersup(attendancelist!!,this,getApplicationContext(),false)
                             rv_attendance.adapter = adapter
                             return@OnMenuItemClickListener true
@@ -139,9 +157,12 @@ class AttendenceApproveSupervisor : AppCompatActivity(), OnResponseListener<Any>
                 progressDialog?.show()
 
                 var attendance: String = ""
+                var empid: String = ""
+
                 if (selectall) {
                     attendancelist?.forEach {
-                        attendance = attendance + "," + it.employee_id
+                        attendance = attendance + "," + it.attendance_list_id
+                        empid = attendance + "," + it.employee_id
                     }
                 } else {
                     checkbox.forEach { (key, value) ->
@@ -152,7 +173,7 @@ class AttendenceApproveSupervisor : AppCompatActivity(), OnResponseListener<Any>
                     }
                 }
 
-                var approve = AttendancApproveRequest(attendance.toString())
+                var approve = AttendancApproveRequest(attendance,empid, userid)
                 val webServices2 = WebServices<Any>(this@AttendenceApproveSupervisor)
                 webServices2.AttendanceApprove(WebServices.ApiType.attendanceapprove,approve)
             } else {
@@ -219,7 +240,11 @@ class AttendenceApproveSupervisor : AppCompatActivity(), OnResponseListener<Any>
 
                         val adapter = AttendenceApproveListAdaptersup(pendinglist!!,this,getApplicationContext(),false)
                         rv_attendance.adapter = adapter
-                        no_data_linear_layout.visibility = View.GONE
+                        if(pendinglist.isEmpty()){
+                            no_data_linear_layout.visibility = View.VISIBLE
+                        }else{
+                            no_data_linear_layout.visibility = View.GONE
+                        }
                     } else {
                         no_data_linear_layout.visibility = View.VISIBLE
                         Toast.makeText(this, "Attendance Approve list is empty", Toast.LENGTH_SHORT)
@@ -241,7 +266,6 @@ class AttendenceApproveSupervisor : AppCompatActivity(), OnResponseListener<Any>
                     val attendanceres = response as generalGesponce
                     if (attendanceres.status == "200" )
                     {
-
                         Toast.makeText(this, "Attendance Approved successfully ", Toast.LENGTH_SHORT)
                             .show()
                     } else
@@ -385,8 +409,9 @@ class AttendenceApproveSupervisor : AppCompatActivity(), OnResponseListener<Any>
     }
 
 
-    override fun onCheckboxChanged(id: String, isChecked: Boolean) {
+    override fun onCheckboxChanged(empid_id: String, id: String, isChecked: Boolean) {
         checkbox.put(id,isChecked)
+        //empids = empids+","+ empid_id
     }
 
     private fun showDatePickerDialog() {

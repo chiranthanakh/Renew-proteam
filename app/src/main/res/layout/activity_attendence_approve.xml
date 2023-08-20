@@ -104,6 +104,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="Attendance"
+                android:paddingRight="@dimen/dp_5"
                 android:maxLines="1"
                 android:textColor="@color/white"
                 android:textSize="14sp"

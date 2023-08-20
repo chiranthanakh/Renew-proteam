@@ -60,7 +60,7 @@ class AttendenceApproveListAdapter(
         }
 
         holder.ch_approve.setOnCheckedChangeListener { _, isChecked ->
-            itemClickListener.onCheckboxChanged(attendanceItem.attendance_list_id, isChecked)
+            itemClickListener.onCheckboxChanged(attendanceItem.employee_id, attendanceItem.attendance_list_id, isChecked)
         }
     }
 

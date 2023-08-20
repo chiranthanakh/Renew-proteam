@@ -1,5 +1,5 @@
 package com.proteam.renew.utilitys
 
 interface CheckboxListner {
-   fun onCheckboxChanged(position: String, isChecked: Boolean)
+   fun onCheckboxChanged(empid: String, position: String, isChecked: Boolean)
 }
